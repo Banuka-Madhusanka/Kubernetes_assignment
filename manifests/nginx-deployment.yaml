@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        # --- THE TRICK STARTS HERE ---
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "mkdir -p /usr/share/nginx/html/app1 && cp /usr/share/nginx/html/index.html /usr/share/nginx/html/app1/index.html"]
+        # --- THE TRICK ENDS HERE ---
+        
+        # We check the root / for health, which is safe because the file exists in both places now
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10

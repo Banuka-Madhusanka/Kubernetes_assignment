@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo-app   
+  template:
+    metadata:
+      labels:
+        app: echo-app
+    spec:
+      containers:
+      - name: echo
+        image: hashicorp/http-echo
+        args:
+          - "-text=Hello from HashiCorp Echo App"
+        ports:
+          - containerPort: 5678
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5678
+          initialDelaySeconds: 5
+          periodSeconds: 10
